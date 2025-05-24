@@ -16,7 +16,7 @@ public class Eraser {
         point2 = new Point(x, MagneticDrawingBoard.Height);
     }
     public void drawEraser(Graphics g) {
-        g.setColor(Color.BLACK);
+        g.setColor(Color.BLUE);
         g.fillRect(x - 20, 0, 40, MagneticDrawingBoard.Height);
     }
     public void setX(int newX) {
