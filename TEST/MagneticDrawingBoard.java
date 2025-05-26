@@ -4,13 +4,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 
 public class MagneticDrawingBoard extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener {
     private BufferedImage canvas;
     private double scale = 1.0;
-    private int offsetX = 0, offsetY = 0;
     private boolean isDrawing = false;
     private boolean isErasing = false;
     private boolean isPanning = false;
@@ -47,13 +45,9 @@ public class MagneticDrawingBoard extends JPanel implements MouseListener, Mouse
         Graphics2D g2 = (Graphics2D) g;
         g2.drawImage(backGround, 0, 2, Width - 17, Height - 39, null);
         drawHexGrid(g2);
-
-        g2.setTransform(AffineTransform.getTranslateInstance(offsetX, offsetY));
         g2.scale(scale, scale);
         g2.drawImage(canvas, 0, 0, null);
 
-        // Vẽ thanh tẩy không bị ảnh hưởng bởi scale và offset (vẽ ở toạ độ màn hình)
-        g2.setTransform(new AffineTransform()); 
         eraser.drawEraser(g2);
         eraseLine(eraser.point1, eraser.point2);
         eraseLine(p1, p2);
@@ -64,9 +58,8 @@ public class MagneticDrawingBoard extends JPanel implements MouseListener, Mouse
 
 
     private Point toCanvasCoords(Point p) {
-        return new Point((int) ((p.x - offsetX) / scale), (int) ((p.y - offsetY) / scale));
+        return new Point((int) ((p.x) / scale), (int) ((p.y) / scale));
     }
-
     private void drawLine(Point p1, Point p2) {
         Graphics2D g2 = canvas.createGraphics();
         g2.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -157,6 +150,7 @@ public void mouseDragged(MouseEvent e) {
     }
 
     if (isDrawing && lastDrawPos != null) {
+        
         drawLine(lastDrawPos, currentCanvasPos);
         lastDrawPos = currentCanvasPos;
     } else if (isErasing && lastErasePos != null) {
@@ -164,26 +158,13 @@ public void mouseDragged(MouseEvent e) {
         lastErasePos = currentCanvasPos;
     } 
     eraseLine(eraser.point1, eraser.point2);
-    // else if (isPanning && lastPanPos != null) {
-    //     Point now = e.getPoint();
-    //     offsetX += now.x - lastPanPos.x;
-    //     offsetY += now.y - lastPanPos.y;
-    //     lastPanPos = now;
-    //     repaint();
-    // }
+
 }
 
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        // double zoomFactor = e.getPreciseWheelRotation() < 0 ? 1.1 : 0.9;
-        // Point mouse = e.getPoint();
-        // Point beforeZoom = toCanvasCoords(mouse);
-        // scale *= zoomFactor;
-        // Point afterZoom = toCanvasCoords(mouse);
-        // offsetX += (afterZoom.x - beforeZoom.x) * scale;
-        // offsetY += (afterZoom.y - beforeZoom.y) * scale;
-        // repaint();
+
     }
 
     ///////////////////////////
@@ -207,11 +188,7 @@ public void mouseDragged(MouseEvent e) {
                 drawHex(g, x, y, size);
             }
         }
-        // g.setColor(Color.BLACK);
-        // g.fillRect(0, 0, Width, 30);
-        // g.fillRect(0, 0, 30, Height);
-        // g.fillRect(Width - 45, 0, 30, Height);
-        // g.fillRect(0, Height - 65, Width, 30);
+
     }
 
     void drawHex(Graphics2D g, double x, double y, double size) {
